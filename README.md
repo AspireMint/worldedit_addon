@@ -1,4 +1,7 @@
 # worldedit_addon  
 
 
-With this mod you will be able to rotate stairs, slabs, torches.
+This mod will override worldedit.rotate function.
+You will be able to rotate stairs and other nodes :-)
+Use it same way as worldedit:
+//rotate <axis> <angle>
