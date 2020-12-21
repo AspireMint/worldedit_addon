@@ -2,18 +2,13 @@ local current_modname = minetest.get_current_modname()
 local path = minetest.get_modpath(current_modname)
 
 local paramtype_util = dofile(path.."/utils/paramtype.lua")
-local rotate_util = dofile(path.."/utils/rotate.lua")
+local flip_util = dofile(path.."/utils/flip.lua")
 
-local get_new_rotation = function(paramtype, axis, origin, angle)
-    local count = rotate_util.get_repetition(angle)
-    local rotation = origin
-    for i=1,count do
-        rotation = rotate_util.rotate(paramtype, axis, rotation)
-    end
-    return rotation
+local get_new_rotation = function(paramtype, axis, origin)
+    return flip_util.flip(paramtype, axis, origin)
 end
 
-local rotate_stairs = function(pos1, pos2, axis, angle)
+local flip_stairs = function(pos1, pos2, axis)
 	local min, max = worldedit.sort_pos(pos1, pos2)
 
 	--make area stay loaded
@@ -26,10 +21,11 @@ local rotate_stairs = function(pos1, pos2, axis, angle)
 			for x = min.x, max.x do
 				pos.x = x; pos.y = y; pos.z = z
 				local node = minetest.get_node(pos)
-				if rotate_util.can_rotate(node) then
+				if flip_util.can_flip(node) then
 					local ndef = minetest.registered_nodes[node.name]
 					local rotation = node.param2 % paramtype_util.get_mask(ndef.paramtype2)
-					local new_rotation = get_new_rotation(ndef.paramtype2, axis, rotation, angle)
+					local paramtype = paramtype_util.paramtype_or_special_case(node)
+					local new_rotation = get_new_rotation(paramtype, axis, rotation)
 					local param2_supplement = node.param2 - rotation
 					node.param2 = new_rotation + param2_supplement
 					minetest.swap_node(pos, node)
@@ -39,4 +35,4 @@ local rotate_stairs = function(pos1, pos2, axis, angle)
 	end
 end
 
-return rotate_stairs
+return flip_stairs
